@@ -22,7 +22,7 @@ export async function POST(req: Request){
       })
       const j = await res.json()
       const content = j.choices?.[0]?.message?.content || ""
-      const match = content.match(/\{.*\}/s)
+      const match = content.match(/\{[\s\S]*\}/)
       if(match){
         const parsed = JSON.parse(match[0])
         return Response.json({
@@ -39,9 +39,12 @@ export async function POST(req: Request){
   const variants:any = {
     "realtor-atl": {headline: "Vende tu casa en Atlanta en 7 dias, sin comisiones ocultas", subheadline: "Atlanta Premier Realty te da oferta en efectivo en 24h. Mas de 312 casas compradas en 2024.", cta: "Obtener Mi Oferta en Efectivo"},
     "gym-owner": {headline: "Tu gimnasio lleno en 30 dias, garantizado", subheadline: "Sistema probado para duenos de gyms en Atlanta", cta: "Ver Demo Gratis"},
-    "lawyer": {headline: "Consigue 15 casos nuevos este mes", subheadline: "Marketing legal que convierte", cta: "Agendar Auditoria"},
-    "generic": {headline: "Tu web que se reescribe sola con IA", subheadline: "Detecta quien entra y cambia headline, CTA y prueba social en 100ms", cta: "Probar Demo Gratis"},
+    "lawyer": {headline: "Consigue 15 casos nuevos este mes", subheadline: "Clientes calificados para abogados en Atlanta", cta: "Agenda Tu Consultoria"},
+    "default": {headline: "Haz crecer tu negocio en Atlanta en 30 dias", subheadline: "Landing pages que se adaptan a cada visitante automaticamente", cta: "Probar Gratis"}
   }
-  const v = variants[industry] || variants["generic"]
-  return Response.json({...v, latencyMs: 42, model: "fallback-local"})
+
+  const key = industry?.toLowerCase().includes("realtor") ? "realtor-atl" : industry?.toLowerCase().includes("gym") ? "gym-owner" : industry?.toLowerCase().includes("law") ? "lawyer" : "default"
+  const v = variants[key] || variants["default"]
+
+  return Response.json({...v, latencyMs: 45, model: "fallback"})
 }
